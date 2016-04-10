@@ -8,8 +8,30 @@ var pc;
 var remoteStream;
 var turnReady;
 
-var pc_config = {'iceServers': [{'url': 'stun:stun.l.google.com:19302'}]};
+var iceServers = [];
 
+iceServers.push({
+    url: 'stun:stun.l.google.com:19302'
+});
+
+iceServers.push({
+    url: 'stun:stun.anyfirewall.com:3478'
+});
+
+iceServers.push({
+    url: 'turn:turn.bistri.com:80',
+    credential: 'homeo',
+    username: 'homeo'
+});
+
+iceServers.push({
+    url: 'turn:turn.anyfirewall.com:443?transport=tcp',
+    credential: 'webrtc',
+    username: 'webrtc'
+});
+
+//var pc_config = {'iceServers': [{'url': 'stun:stun.l.google.com:19302'}]};
+var pc_config = {'iceServers': iceServers};
 var pc_constraints = {'optional': [{'DtlsSrtpKeyAgreement': true}]};
 
 // Set up audio and video regardless of what devices are present.
@@ -120,7 +142,7 @@ getUserMedia(constraints, handleUserMedia, handleUserMediaError);
 console.log('Getting user media with constraints', constraints);
 
 if (location.hostname != "localhost") {
-   requestTurn("turn:61.152.239.60:4478?username=woodgeen&key=master");
+   requestTurn(iceServers[3]);
    // "turn:61.152.239.60:443?transport=udp",
    // "turn:61.152.239.60:4478?transport=tcp","turn:61.152.239.60:443?transport=tcp"],
    //   credential : "master",
@@ -150,6 +172,7 @@ window.onbeforeunload = function(e){
 function createPeerConnection() {
   try {
     pc = new RTCPeerConnection(null);
+    
     //onicecandidate returns locally generated ICE candidates
     //so you can pass them over other peers via socket
     pc.onicecandidate = handleIceCandidate;
