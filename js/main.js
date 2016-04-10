@@ -120,12 +120,12 @@ getUserMedia(constraints, handleUserMedia, handleUserMediaError);
 console.log('Getting user media with constraints', constraints);
 
 if (location.hostname != "localhost") {
-   requestTurn(["turn:61.152.239.60:4478?transport=udp",
-    "turn:61.152.239.60:443?transport=udp",
-    "turn:61.152.239.60:4478?transport=tcp","turn:61.152.239.60:443?transport=tcp"],
-      credential : "master",
-      username : "woogeen"
-    );
+   requestTurn("turn:61.152.239.60:4478?username=woodgeen&key=master");
+   // "turn:61.152.239.60:443?transport=udp",
+   // "turn:61.152.239.60:4478?transport=tcp","turn:61.152.239.60:443?transport=tcp"],
+   //   credential : "master",
+  //    username : "woogeen"
+  //  );
  // requestTurn('https://computeengineondemand.appspot.com/turn?username=41784574&key=4080218913');
 }
 
