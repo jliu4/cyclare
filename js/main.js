@@ -76,15 +76,19 @@ socket.on('message', function (message){
     if (!isInitiator && !isStarted) {
       maybeStart();
     }
+
     pc.setRemoteDescription(new RTCSessionDescription(message));
     doAnswer();
+
   } else if (message.type === 'answer' && isStarted) {
     pc.setRemoteDescription(new RTCSessionDescription(message));
+
   } else if (message.type === 'candidate' && isStarted) {
     var candidate = new RTCIceCandidate({
       sdpMLineIndex: message.label,
       candidate: message.candidate
     });
+    //on getting ICE sent by other peer
     pc.addIceCandidate(candidate);
   } else if (message === 'bye' && isStarted) {
     handleRemoteHangup();
@@ -110,7 +114,7 @@ function handleUserMediaError(error){
   console.log('getUserMedia error: ', error);
 }
 
-var constraints = {video: true};
+var constraints = {video: true, audio: true};
 getUserMedia(constraints, handleUserMedia, handleUserMediaError);
 
 console.log('Getting user media with constraints', constraints);
@@ -140,7 +144,10 @@ window.onbeforeunload = function(e){
 function createPeerConnection() {
   try {
     pc = new RTCPeerConnection(null);
+    //onicecandidate returns locally generated ICE candidates
+    //so you can pass them over other peers via socket
     pc.onicecandidate = handleIceCandidate;
+    //returns remote stream 
     pc.onaddstream = handleRemoteStreamAdded;
     pc.onremovestream = handleRemoteStreamRemoved;
     console.log('Created RTCPeerConnnection');
@@ -153,6 +160,7 @@ function createPeerConnection() {
 
 function handleIceCandidate(event) {
   console.log('handleIceCandidate event: ', event);
+  //getting locally generated ICE
   if (event.candidate) {
     sendMessage({
       type: 'candidate',
@@ -176,20 +184,16 @@ function handleCreateOfferError(event){
 
 function doCall() {
   console.log('Sending offer to peer');
-  pc.createOffer(setLocalAndSendMessage, handleCreateOfferError);
+  pc.createOffer(setLocalAndSendMessage, function(error) {
+    alert(error);
+}, sdpConstraints);
 }
 
 function doAnswer() {
   console.log('Sending answer to peer.');
-  pc.createAnswer(setLocalAndSendMessage, null, sdpConstraints);
-  pc.createAnswer(function (sessionDescription) {
-    pc.setLocalDescription(sessionDescription);
-    
-    // POST-answer-SDP-back-to-Offerer(sessionDescription.sdp, sessionDescription.type);
-
-}, function(error) {
+  pc.createAnswer(setLocalAndSendMessage, function(error) {
     alert(error);
-}, { 'mandatory': { 'OfferToReceiveAudio': true, 'OfferToReceiveVideo': true } });
+}, sdpConstraints);
 }
 
 function setLocalAndSendMessage(sessionDescription) {
