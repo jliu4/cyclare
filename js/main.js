@@ -120,7 +120,9 @@ getUserMedia(constraints, handleUserMedia, handleUserMediaError);
 console.log('Getting user media with constraints', constraints);
 
 if (location.hostname != "localhost") {
-   requestTurn(["turn:61.152.239.60:4478?transport=udp","turn:61.152.239.60:443?transport=udp","turn:61.152.239.60:4478?transport=tcp","turn:61.152.239.60:443?transport=tcp"],
+   requestTurn(["turn:61.152.239.60:4478?transport=udp",
+    "turn:61.152.239.60:443?transport=udp",
+    "turn:61.152.239.60:4478?transport=tcp","turn:61.152.239.60:443?transport=tcp"],
       credential : "master",
       username : "woogeen"
     );
